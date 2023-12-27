@@ -1,0 +1,109 @@
+<!--
+
+ \    /  ._  o  _|_  _|_   _   ._     |_       o
+  \/\/   |   |   |_   |_  (/_  | |    |_)  \/  o
+                               _           /
+ |_|       _   o  ._    _.    |_)   _.  _|_  ._  o  |
+ | |  |_|  /_  |  | |  (_|    |    (_|   |_  |   |  |<
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            Banki kiadások
+
+            <div :class="`settingsButton ${editMode ? 'active' : ''}`" @click="toggleEditMode()">
+                <i class="fas fa-gear"></i>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="countInput">
+                <input type="number" id='count-input' class="input-box" placeholder="Gépeld be a mennyiséget: " v-model="inputValue">
+            </div>
+
+            <div class="banks">
+                <template v-for="(data, index) in banks" :key="index">
+                    <div class="bankContainer">
+                        <div class="logo">
+                            <img :src="data.img" alt="Bank">
+                        </div>
+
+                        <div class="bankName"> {{ data.name }} <span v-if="editMode" style="color: var(--green-color)">{{formatNumber(data.maxCount)}} Ft </span> </div>
+
+                        <div class="progressBar" v-if="!editMode">
+                            <div class="fulfill" :style="`width: ${getCurrentPercent(data)}%; background-color: ${getCurrentPercent(data) >= 100 ? 'var(--red-color)' : 'var(--green-color)'}`"></div>
+                            <div class="statusText" :style="`color: ${getCurrentPercent(data) >= 100 ? 'var(--red-color-hover)' : 'var(--green-color-hover)'}`">{{formatNumber(data.count)}} / {{formatNumber(data.maxCount)}} Ft</div>
+                        </div>
+
+                        <div class="progressBar" v-if="editMode">
+                            <div class="countInput">
+                                <input type="number" :id="`count-input-${index}`" class="input-box" placeholder="Gépeld be az új mennyiséget: " v-model="data.inputValue">
+                            </div>
+                        </div>
+
+                        <div class="addButton" @click="addValue(index)" v-if="!editMode">
+                            <i class="fas fa-plus"></i>
+                        </div>
+
+                        <div class="saveButton" @click="saveValue(index)" v-if="editMode">
+                            <i class="fas fa-save"></i>
+                        </div>
+
+                        <div class="resetButton" @click="resetValue(index)" v-if="!editMode">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="header">
+                Logok
+            </div>
+
+            <div class="logs">
+                <template v-for="(data, index) in logs" :key="index">
+                    <div class="logContainer">
+                        <span class="datum">{{ data.datum }}</span>
+                        <br>
+                        <p class="text">{{ data.text }}</p>
+
+                        <div class="deleteButton" @click="removeLog(index)">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div class="confirm-container">
+            <div class="header">
+                {{ specialPage?.header }}
+            </div>
+
+            <span>{{ specialPage?.description }}</span>
+
+            <div class="acceptButton" @click="acceptConfirm()">{{ specialPage?.buttonAccept }}</div>
+            <div class="denyButton" @click="closeConfirm()">{{ specialPage?.buttonDeny }}</div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
